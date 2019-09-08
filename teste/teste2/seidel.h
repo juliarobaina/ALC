@@ -1,0 +1,15 @@
+#ifndef _SEIDEL_H
+#define _SEIDEL_H
+
+#include <stdio.h>
+#include <stdlib.h>
+
+	int somarFracao(int numerador1,int numerador2,int denominador1,int denominador2,int escolha);
+	int dividirFracao(int numerador1,int numerador2,int denominador1,int denominador2,int escolha);
+	int multiplicarFracao(int numerador1,int numerador2,int denominador1,int denominador2,int escolha);
+	
+	int* alocarVetor(int tam);
+	int** alocarMatriz(int linha,int coluna);
+	void liberarMatriz(int** matriz,int linha);
+
+#endif
