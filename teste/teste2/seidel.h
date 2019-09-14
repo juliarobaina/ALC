@@ -7,6 +7,7 @@
 	int somarFracao(int numerador1,int numerador2,int denominador1,int denominador2,int escolha);
 	int dividirFracao(int numerador1,int numerador2,int denominador1,int denominador2,int escolha);
 	int multiplicarFracao(int numerador1,int numerador2,int denominador1,int denominador2,int escolha);
+	int MDC(int numerador,int denominador);
 	
 	int* alocarVetor(int tam);
 	int** alocarMatriz(int linha,int coluna);
