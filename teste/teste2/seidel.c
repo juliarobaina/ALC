@@ -5,13 +5,13 @@ int somarFracao(int numerador1,int numerador2,int denominador1,int denominador2,
 	int resultNumerador,resultDenominador,aux1,aux2;
 
 	if(abs(denominador1) == abs(denominador2)){
-		resultNumerador = numerador1 - numerador2;
+		resultNumerador = numerador1 + numerador2;
 		resultDenominador = denominador1;
 	}else{
 		resultDenominador = denominador1 * denominador2;
 		aux1 = denominador2 * numerador1;
 		aux2 = denominador1 * numerador2;
-		resultNumerador = aux1 - aux2;
+		resultNumerador = aux1 + aux2;
 	}
 
 	if (escolha == 1) 
@@ -44,6 +44,23 @@ int multiplicarFracao(int numerador1,int numerador2,int denominador1,int denomin
 		return resultNumerador; 
 	else
 		return resultDenominador;
+}
+
+int MDC(int numerador,int denominador){
+
+	int resto = numerador % denominador;
+	int aux = 1;
+
+	while(resto != 0){
+		aux = resto;
+		resto = denominador % resto;
+		denominador = aux;
+		/*numerador = denominador;
+		denominador = resto;
+		resto = numerador % denominador;*/
+	}
+
+	return aux;
 }
 
 int* alocarVetor(int tam){
