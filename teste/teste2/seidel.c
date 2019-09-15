@@ -55,9 +55,6 @@ int MDC(int numerador,int denominador){
 		aux = resto;
 		resto = denominador % resto;
 		denominador = aux;
-		/*numerador = denominador;
-		denominador = resto;
-		resto = numerador % denominador;*/
 	}
 
 	return aux;
