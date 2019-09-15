@@ -49,15 +49,32 @@ int multiplicarFracao(int numerador1,int numerador2,int denominador1,int denomin
 int MDC(int numerador,int denominador){
 
 	int resto = numerador % denominador;
+	
+	if(resto == 0){
+		return 1;
+	}
+
 	int aux = 1;
 
 	while(resto != 0){
+		
 		aux = resto;
+		
+		if(resto == 0){
+			return 1;
+		}
+
 		resto = denominador % resto;
 		denominador = aux;
 	}
 
-	return aux;
+	if(aux == 0){
+			return 1;
+	}else{
+		return aux;
+	}
+
+	
 }
 
 int* alocarVetor(int tam){
