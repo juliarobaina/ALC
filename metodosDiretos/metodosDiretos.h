@@ -10,6 +10,7 @@
 	void eliminacaoGauss_pivoteamentoTotal(double** matriz, double* vetorB ,int ordem);
 	void eliminacaoGauss_pivoteamentoParcial(double** matriz, double* vetorB ,int ordem);
 	void eliminacaoGauss(double** matriz, double* vetorB ,int ordem);
+	void decomposicaoLU(double** matriz, double* vetorB ,int ordem);
 
 	void imprimirMatriz(double** matriz, int ordem);
 	void imprimirVetor(double* vet, int ordem);
