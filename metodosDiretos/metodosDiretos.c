@@ -330,3 +330,77 @@ void eliminacaoGauss(double** matriz, double* vetorB ,int ordem){//eliminação 
     free(x);
 
 }
+
+void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
+
+	double** L = alocarMatriz(ordem);
+	double** U;
+
+	for(int i = 0;i < ordem;i++){
+		
+		L[i][i] = 1;
+	}
+
+
+	//ETAPA DE ESCALONAMENTO
+    for(int k = 0; k < ordem - 1; k++){
+    	
+        if(matriz[k][k] == 0){
+            printf("A matriz dos coeficientes é singular\n");
+            return;
+        }else{
+            //realiza o escalonamento
+            for(int m = k + 1; m < ordem; m++){
+            	/*Esse loop defini o multiplicador da linha*/
+            	printf("-matriz[m][k] / matriz[k][k] = %.5lf / %.5lf ||| %d - %d\n",matriz[m][k],matriz[k][k],k,m);
+                double F = -matriz[m][k] / matriz[k][k];                
+                matriz[m][k] = 0; //evita uma iteração
+                
+                L[m][k] = -F;//coloca os multiplicadores na matriz triangular inferior, -F para pegar o valor original de (matriz[m][k] / matriz[k][k])
+                //vetorB[m] = vetorB[m] + F * vetorB[k];
+
+                for(int l = k + 1; l < ordem; l++){
+                	//Atualização da linha, matriz[k][l] é o elemento da linha do pivô
+                    matriz[m][l] = matriz[m][l] + F * matriz[k][l];
+                }
+
+                imprimirMatriz(matriz,ordem);
+                printf("\n");
+            }
+        }
+    }
+
+    U = matriz;
+
+    printf("\n-----------------------------------------------------------------------------\n");
+    printf("Matriz triangular\n");
+    imprimirMatriz(L,ordem);
+    printf("\nMatriz Superior\n");
+    imprimirMatriz(U,ordem);
+    printf("\nMatriz Escalonada\n");
+    imprimirMatriz(matriz,ordem);
+
+
+    double* vetorSolucao_matrizL = alocarVetor(ordem);
+    vetorSolucao_matrizL = triangularInferior(L,vetorB,vetorSolucao_matrizL,ordem);
+
+    printf("\nVetor solucao da matriz L\n");
+    for (int i = 0; i < ordem; i++){
+    	printf("x_L[%d] = %.5lf\n",i,vetorSolucao_matrizL[i]);
+    }
+
+
+    double* vetorSolucao_matrizU = alocarVetor(ordem);
+    vetorSolucao_matrizU = triangularSuperior(U,vetorSolucao_matrizL,vetorSolucao_matrizU,ordem);
+
+    printf("\nVetor solucao da matriz U\n");
+    for (int i = 0; i < ordem; i++){
+    	printf("x_U[%d] = %.5lf\n",i,vetorSolucao_matrizU[i]);
+    }
+
+
+    liberarMatriz(L,ordem);
+    free(vetorSolucao_matrizL);
+    free(vetorSolucao_matrizU);
+  
+}
