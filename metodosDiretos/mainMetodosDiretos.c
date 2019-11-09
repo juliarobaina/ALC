@@ -28,17 +28,19 @@ int main(){
 
 	printf("\n");
 
-	printf("Matriz e vetor de termos independentes\n");
-
+	printf("Matriz:\n");
 	imprimirMatriz(m,ordem);
 
-	for (int i = 0; i < ordem; i++){
-		printf("b[%d] = %.5lf\n",i,b[i]);
-	}
+	printf("Vetor de termos independentes:\n");
+	imprimirVetor(b,ordem);
 
-	printf("Digite:\n");
+
+	printf("\nDigite:\n");
 	printf("1 - Triangular Inferior\n");
 	printf("2 - Triangular Superior\n");
+	printf("3 - Eliminacao de Gauss com pivoteamento total\n");
+	printf("4 - Eliminacao de Gauss com pivoteamento parcial\n");
+	printf("5 - Eliminacao de Gauss\n");
 	scanf("%d",&esc);
 
 	double* vetorSolucao = alocarVetor(ordem);
@@ -46,9 +48,41 @@ int main(){
 	switch(esc){
 		case 1:
 			vetorSolucao = triangularInferior(m,b,vetorSolucao,ordem);
+			imprimirVetor(vetorSolucao, ordem);
 		break;
 		case 2:
 			vetorSolucao = triangularSuperior(m,b,vetorSolucao,ordem);
+			imprimirVetor(vetorSolucao, ordem);
+		break;
+		case 3:
+			eliminacaoGauss_pivoteamentoTotal(m,b,ordem);
+			
+			printf("\nMatriz Escalonada com pivoteamento total:\n");
+			imprimirMatriz(m,ordem);
+			
+			printf("\nVetor de termos independentes:\n");
+			imprimirVetor(b,ordem);
+			
+		break;
+		case 4:
+			eliminacaoGauss_pivoteamentoParcial(m,b,ordem);
+			
+			printf("\nMatriz Escalonada com pivoteamento prcial:\n");
+			imprimirMatriz(m,ordem);
+			
+			printf("\nVetor de termos independentes:\n");
+			imprimirVetor(b,ordem);
+			
+		break;
+		case 5:
+			eliminacaoGauss(m,b,ordem);
+			
+			printf("\nMatriz Escalonada:\n");
+			imprimirMatriz(m,ordem);
+			
+			printf("\nVetor de termos independentes:\n");
+			imprimirVetor(b,ordem);
+			
 		break;
 		default:
 			printf("Opcao errada\n");
@@ -57,12 +91,9 @@ int main(){
 
 	
 
-	for (int i = 0; i < ordem; i++){
-		printf("%.5lf\n",vetorSolucao[i]);
-	}	
-
 	free(vetorSolucao);
-
+	free(b);
+	liberarMatriz(m,ordem);
 
 	return 0;
 }
