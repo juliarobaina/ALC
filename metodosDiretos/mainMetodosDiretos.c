@@ -41,6 +41,7 @@ int main(){
 	printf("3 - Eliminacao de Gauss com pivoteamento total\n");
 	printf("4 - Eliminacao de Gauss com pivoteamento parcial\n");
 	printf("5 - Eliminacao de Gauss\n");
+	printf("6 - Decomposicao LU\n");
 	scanf("%d",&esc);
 
 	double* vetorSolucao = alocarVetor(ordem);
@@ -83,6 +84,9 @@ int main(){
 			printf("\nVetor de termos independentes:\n");
 			imprimirVetor(b,ordem);
 			
+		break;
+		case 6:
+			decomposicaoLU(m,b,ordem);
 		break;
 		default:
 			printf("Opcao errada\n");
