@@ -318,7 +318,7 @@ void eliminacaoGauss(double** matriz, double* vetorB ,int ordem){//eliminação 
      
     int cont = 0;
 
-    printf("\nVetor solucao - Eliminacao de Gauss com Pivoteamento Parcial\n");
+    printf("\nVetor solucao - Eliminacao de Gauss\n");
     while(cont < ordem){
 
     	printf("x[%d] = %.5lf\n",cont,x[cont]);
@@ -352,7 +352,6 @@ void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
             //realiza o escalonamento
             for(int m = k + 1; m < ordem; m++){
             	/*Esse loop defini o multiplicador da linha*/
-            	printf("-matriz[m][k] / matriz[k][k] = %.5lf / %.5lf ||| %d - %d\n",matriz[m][k],matriz[k][k],k,m);
                 double F = -matriz[m][k] / matriz[k][k];                
                 matriz[m][k] = 0; //evita uma iteração
                 
@@ -363,9 +362,6 @@ void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
                 	//Atualização da linha, matriz[k][l] é o elemento da linha do pivô
                     matriz[m][l] = matriz[m][l] + F * matriz[k][l];
                 }
-
-                imprimirMatriz(matriz,ordem);
-                printf("\n");
             }
         }
     }
