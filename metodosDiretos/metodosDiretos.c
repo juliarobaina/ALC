@@ -400,3 +400,88 @@ void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
     free(vetorSolucao_matrizU);
   
 }
+
+
+void cholesky(double** A, double* vetorB, int ordem){
+
+    double** G = alocarMatriz(ordem);
+    double** G_t = alocarMatriz(ordem);
+    double soma = 0,soma2 = 0;
+
+
+    G[0][0] = sqrt(A[0][0]);//G11 = raiz(a11)
+
+    for(int i = 1; i < ordem;i++){
+        //Fica uma matriz triangular inferior
+        soma = 0;
+        G[i][0] = A[i][0] / G[0][0];//calcular valores da 1ª coluna
+       
+        for(int j = 0; j <= i - 1;j++){
+            //calcular valores da diagonal principal
+            if(i >= 2 && j != 0){//calcular os valores das demais linhas e colunas
+                for(int p = 2; p < ordem; p++){
+                    for(int r = 1;r < p;r++){
+                         
+                        soma2 = A[p][r];
+                       
+                        for(int k = 0; k < r; k++){
+                            soma2 = soma2 - G[p][k] * G[r][k];
+                        }
+
+                        G[p][r] = soma2 / G[r][r];
+                    }                   
+                } 
+            }
+          
+            soma = soma + pow(G[i][j],2);         
+        }
+
+        G[i][i] = sqrt(A[i][i] - soma);//calcular valores da diagonal principal      
+    }
+
+    //obtém a matriz G transposta
+    for (int i = 0; i < ordem; ++i){
+        for (int j = 0; j < ordem; ++j){
+            G_t[i][j] = G[j][i];
+        }
+    }
+
+    printf("\nA = G * Gt\n");
+    printf("Matriz G:\n");
+    imprimirMatriz(G,ordem);
+    printf("\nMatriz Gt:\n");
+    imprimirMatriz(G_t,ordem);    
+
+    
+    /*                                     
+        A * x = b               A = G * Gt 
+                                           ^                      ^
+        (G * Gt)* x = b         Gt * x = y |    direção de cálculo|
+                                G * y = b  |
+    */
+    double* vetorSolucao_matrizL = alocarVetor(ordem);
+    vetorSolucao_matrizL = triangularInferior(G,vetorB,vetorSolucao_matrizL,ordem);
+
+    printf("\nVetor solucao da matriz G\n");
+    for (int i = 0; i < ordem; i++){
+        printf("x_G[%d] = %.5lf\n",i,vetorSolucao_matrizL[i]);
+    }
+
+
+    double* vetorSolucao_matrizU = alocarVetor(ordem);
+    vetorSolucao_matrizU = triangularSuperior(G_t,vetorSolucao_matrizL,vetorSolucao_matrizU,ordem);
+
+    printf("\nVetor solucao da matriz Gt\n");
+    for (int i = 0; i < ordem; i++){
+        printf("x_Gt[%d] = %.5lf\n",i,vetorSolucao_matrizU[i]);
+    }
+
+
+
+    liberarMatriz(G,ordem);
+    liberarMatriz(G_t,ordem);
+    free(vetorSolucao_matrizL);
+    free(vetorSolucao_matrizU);
+
+
+}
