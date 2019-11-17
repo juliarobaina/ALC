@@ -402,7 +402,7 @@ void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
 }
 
 
-void cholesky(double** A, double* vetorB, int ordem){
+void cholesky(double** A, double* vetorB, int ordem){//A matriz deve ser positiva definida
 
     double** G = alocarMatriz(ordem);
     double** G_t = alocarMatriz(ordem);
