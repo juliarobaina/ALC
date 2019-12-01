@@ -5,7 +5,7 @@ void imprimirMatriz(double** matriz, int ordem){
 	for(int i = 0; i < ordem; i++){
 		for(int j = 0; j < ordem; j++){
 
-			printf("%10.5lf",matriz[i][j]);
+			printf("%5.1lf",matriz[i][j]);
 		}
 
 		printf("\n");
@@ -101,6 +101,8 @@ void eliminacaoGauss_pivoteamentoTotal(double** matriz, double* vetorB ,int orde
             	variaveis[maxIndexC] = tempV;
             }
         }
+
+
 
         max = fabs(matriz[k][k]);
 
@@ -353,7 +355,8 @@ void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
             for(int m = k + 1; m < ordem; m++){
             	/*Esse loop defini o multiplicador da linha*/
             	//printf("-matriz[m][k] / matriz[k][k] = %.5lf / %.5lf ||| %d - %d\n",matriz[m][k],matriz[k][k],k,m);
-                double F = -matriz[m][k] / matriz[k][k];                
+                double F = -matriz[m][k] / matriz[k][k]; 
+
                 matriz[m][k] = 0; //evita uma iteração
                 
                 L[m][k] = -F;//coloca os multiplicadores na matriz triangular inferior, -F para pegar o valor original de (matriz[m][k] / matriz[k][k])
@@ -371,8 +374,7 @@ void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
     }
 
     U = matriz;
-    printf("Vetor B\n");
-    imprimirVetor(vetorB,ordem);
+    
 
     printf("\n-----------------------------------------------------------------------------\n");
     printf("Matriz triangular\n");
@@ -512,14 +514,18 @@ void cholesky(double** A, double* vetorB, int ordem){//A matriz deve ser positiv
 
 }
 
+
+/*FUNÇÕES ABAIXO PARA A PROVA 2*/
 void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem){
 
     double** L = alocarMatriz(ordem);
+    double** P = alocarMatriz(ordem);
     double** U;
 
     for(int i = 0;i < ordem;i++){
         
         L[i][i] = 1;
+        P[i][i] = 1;
     }
 
     int* variaveis = (int*) malloc(ordem * sizeof(int));
@@ -530,7 +536,6 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
         variaveis[i] = i; //x[0],x[1],x[2],...,x[n-1].          
     }
 
-
     //ETAPA DE ESCALONAMENTO
     for(int k = 0; k < ordem - 1; k++){
        
@@ -538,17 +543,18 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
         int maxIndexL = k;//O maior valor da linha
         int maxIndexC = k;//O maior valor da coluna
 
-         printf("PASSO A PASSO\n");
+        printf("PASSO A PASSO 4\n");
             imprimirMatriz(matriz,ordem);
             imprimirVetor(vetorB,ordem);
             
-   
+    
 
         for(int i = k; i < ordem;i++){//procura o maior elemento da matriz
             for(int j = 0; j < ordem; j++){
                 if(max < fabs(matriz[i][j])){
                     max = fabs(matriz[i][j]);
                     maxIndexC = j;
+                 
                 }
             }
         }
@@ -561,6 +567,10 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
                 matriz[j][k] = matriz[j][maxIndexC];
                 matriz[j][maxIndexC] = temp;
 
+                double temp2 = L[j][k];
+                L[j][k] = L[j][maxIndexC];
+                L[j][maxIndexC] = temp2;
+
                 int tempV = variaveis[k];
                 variaveis[k] = variaveis[maxIndexC];
                 variaveis[maxIndexC] = tempV;
@@ -568,17 +578,19 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
                
             }
         }
-         printf("PASSO A PASSO\n");
+         printf("PASSO A PASSO 1\n");
             imprimirMatriz(matriz,ordem);
             imprimirVetor(vetorB,ordem);
   
 
         max = fabs(matriz[k][k]);
+        
 
         for(int i = k + 1; i < ordem; i++){//procura o maior elemento da coluna, encontra a linha que está.
             if(max < fabs(matriz[i][k])){
                 max = fabs(matriz[i][k]);
                 maxIndexL = i;
+               
             }
         }
 
@@ -592,46 +604,53 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
                 matriz[k][j] = matriz[maxIndexL][j];
                 matriz[maxIndexL][j] = temp;
 
+                double temp2 = L[k][j];
+                L[k][j] = L[maxIndexL][j];
+                L[maxIndexL][j] = temp2;
                 
             }
-            /*double temp = vetorB[k];
+            double temp = vetorB[k];
             vetorB[k] = vetorB[maxIndexL];
-            vetorB[maxIndexL] = temp;*/
+            vetorB[maxIndexL] = temp;
         }
-
-         printf("PASSO A PASSO\n");
+         printf("PASSO A PASSO 2\n");
             imprimirMatriz(matriz,ordem);
             imprimirVetor(vetorB,ordem);
    
 
         //Se A[k][k] é zero, então a matriz dos coeficiente é singular
         //det A = 0
+         
         if(matriz[k][k] == 0){
             printf("A matriz dos coeficientes é singular\n");
             return;
         }else{
-             printf("PASSO A PASSO\n");
+            /* printf("PASSO A PASSO\n");
             imprimirMatriz(matriz,ordem);
-            imprimirVetor(vetorB,ordem);
+            imprimirVetor(vetorB,ordem);*/
    
             //realiza o escalonamento
             for(int m = k + 1; m < ordem; m++){
                 /*Esse loop defini o multiplicador da linha*/
                 double F = -matriz[m][k] / matriz[k][k];
                 matriz[m][k] = 0; //evita uma iteração
-                //vetorB[m] = vetorB[m] + F * vetorB[k];
+                vetorB[m] = vetorB[m] + F * vetorB[k];
+
+               
                 L[m][k] = -F;//coloca os multiplicadores na matriz triangular inferior, -F para pegar o valor original de (matriz[m][k] / matriz[k][k])
                 for(int l = k + 1; l < ordem; l++){
                     //Atualização da linha, matriz[k][l] é o elemento da linha do pivô
                     matriz[m][l] = matriz[m][l] + F * matriz[k][l];
                 }
             }
-            printf("PASSO A PASSO\n");
+            printf("PASSO A PASSO 3\n");
             imprimirMatriz(matriz,ordem);
             imprimirVetor(vetorB,ordem);
      
         }
     }
+
+
 
     U = matriz;
 
@@ -641,42 +660,35 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
     for (int i = ordem - 1; i >= 0; i--){
         x[i] = vetorB[i];
         for(int j = i + 1; j < ordem; j++){
-            x[i] = x[i] - x[j] * matriz[i][j];
+            x[i] = x[i] - x[j] * L[i][j];
         }
 
-        x[i] = x[i] / matriz[i][i];
+        x[i] = x[i] / L[i][i];
     }
 
     
     int ind = 0;
 
     double solut[ordem];
-    printf("Variaveis\n");
-    for (int g = 0; g < ordem; ++g)
-    {
-        printf("%d\n",variaveis[g]);
-    }
+    
 
     for(int i = 0; i < ordem;i++){
         for(int j = 0;j < ordem; j++){
-            /*O vetor x da solução do sistema está trocado.
-                Procuro o elemento que é igual ao índice i; 0,1,...,n-1; no vetor variaveis. Variaveis é onde se encontra
-                as posições atuais dos vetores x1,x2,...,xn.
-            */
             if(i == variaveis[j])
                 ind = j;
         }
-        /* solut recebe o valor de x de índice ind. x de índice ind, contém a posição que se encontra o primeiro
-          valor do vetor solução, por exemplo. E assim sucessivamente. solut recebe todos os valores em ordem. Assim,
-          se obtém o vetor solução na ordem correta.
-         */
-        solut[i] = x[ind];
+        solut[i] = vetorB[ind];
     }
 
+    printf("¨$$$$$$$$$$\n");
+    imprimirMatriz(P,ordem);
         
     printf("Solut ->\n");
-    imprimirVetor(solut,ordem);
-
+    //imprimirVetor(solut,ordem);
+    imprimirVetor(x,ordem);
+    vetorB[0] = 2;
+    vetorB[1] = 1;
+    vetorB[2] = 3;
 
     printf("\n-----------------------------------------------------------------------------\n");
     printf("Matriz triangular\n");
@@ -685,7 +697,6 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
     imprimirMatriz(U,ordem);
     printf("\nMatriz Escalonada\n");
     imprimirMatriz(matriz,ordem);
-
 
     double* vetorSolucao_matrizL = alocarVetor(ordem);
     vetorSolucao_matrizL = triangularInferior(L,vetorB,vetorSolucao_matrizL,ordem);
@@ -710,5 +721,251 @@ void decomposicaoLU_PivoteamentoTotal(double** matriz, double* vetorB ,int ordem
     free(vetorSolucao_matrizU);
     free(variaveis);
     free(x);
+}
+double** gerarMatriz(){
+
+    double** m = alocarMatriz(MAX);
+    int cont = 0;
+
+    //Preenche a matriz diagonal inferior
+    for(int i = 0; i < MAX; i++){
+
+        cont = 1;
+        for(int j = 1; j < MAX; j++){
+    
+            m[j][i] = cont;
+            if(i != j && j > i){
+                
+                cont++;
+            }
+            
+        }   
+    }
+
+    int aux = cont = 21;//a PRIMEIRA VERSAO CONT É IGUAL A 21
+
+    //Preenche a matriz diagonal superior
+    for(int i = 0; i < MAX; i++){
+
+        cont--;
+        for(int j = MAX - 1; j > i; j--){
+            m[i][j] = cont;
+            cont--;
+            
+        }
+        cont = aux - 1;
+        aux--;
+    }
+
+    //Preenche a diagonal principal
+    for (int i = 0; i < MAX; ++i){
+        m[i][i] = 0;
+    }
+
+    return m;
+}
+
+double* gerarTermosIndependentes(){
+
+    double* b = alocarVetor(MAX);
+    //Preenche o vetor b
+    for (int i = 0; i < MAX; ++i){
+        b[i] = i + 1;
+    }
+
+    return b;
+}
+
+void inversa_LU(double** matriz, double* vetorB ,int ordem){
+
+    double** L = alocarMatriz(ordem);
+    double** U;
+    double** I = alocarMatriz(ordem);
+
+    for(int i = 0;i < ordem;i++){
+        
+        L[i][i] = 1;
+        I[i][i] = 1;
+    }
+
+    int variaveis[ordem],variaveis2[ordem];
+    
+    //inicializa o variaveis em ordem crescente.
+    for(int i = 0; i < ordem;i++){
+       
+        variaveis[i] = i; //x[0],x[1],x[2],...,x[n-1].          
+       variaveis2[i] = i;
+        
+    }
+
+
+    //ETAPA DE ESCALONAMENTO
+    for(int k = 0; k < ordem - 1; k++){
+
+        double max = fabs(matriz[k][k]);
+        int maxIndexL = k;//O maior valor da linha
+        int maxIndexC = k;//O maior valor da coluna
+        
+
+      
+
+        for(int i = k; i < ordem;i++){//procura o maior elemento da matriz
+            for(int j = 0; j < ordem; j++){
+                if(max < fabs(matriz[i][j])){
+                    max = fabs(matriz[i][j]);
+                    maxIndexC = j;
+                }
+            }
+        }
+
+        if(maxIndexC != k){//troca as colunas
+
+            for(int j = 0; j < ordem; j++){
+
+                double temp = matriz[j][k];
+                matriz[j][k] = matriz[j][maxIndexC];
+                matriz[j][maxIndexC] = temp;
+
+                /*double temp2 = I[j][k];
+                I[j][k] = I[j][maxIndexC];
+                I[j][maxIndexC] = temp2;*/
+
+                int tempV = variaveis[k];
+                variaveis[k] = variaveis[maxIndexC];
+                variaveis[maxIndexC] = tempV;
+            }
+        }
+
+
+        max = fabs(matriz[k][k]);
+
+        for(int i = k + 1; i < ordem; i++){//procura o maior elemento da coluna, encontra a linha que está.
+            if(max < fabs(matriz[i][k])){
+                max = fabs(matriz[i][k]);
+                maxIndexL = i;
+            }
+        }
+
+        printf("PASSO A PASSO 3\n");
+            imprimirMatriz(matriz,ordem);
+            imprimirVetor(vetorB,ordem);
+
+        if(maxIndexL != k) {//Troca as linhas
+            printf("entei\n");
+            /*troca a equação k pela equação com o
+              maior k-ésimo coeficiente em módulo. Troca o pivô.
+             */
+            for(int j = 0; j < ordem; j++) {
+                double temp = matriz[k][j];
+                matriz[k][j] = matriz[maxIndexL][j];
+                matriz[maxIndexL][j] = temp;
+
+                /*double temp2 = I[k][j];
+                I[k][j] = I[maxIndexL][j];
+                I[maxIndexL][j] = temp2;*/
+
+                int tempV = variaveis2[k];
+                variaveis2[k] = variaveis2[maxIndexL];
+                variaveis2[maxIndexL] = tempV;
+
+            }
+        }
+        printf("PASSO A PASSO 3\n");
+            imprimirMatriz(matriz,ordem);
+            imprimirVetor(vetorB,ordem);
+       
+      
+        if(matriz[k][k] == 0){
+            printf("A matriz dos coeficientes é singular\n");
+            return;
+        }else{
+            //realiza o escalonamento
+            for(int m = k + 1; m < ordem; m++){
+                /*Esse loop defini o multiplicador da linha*/
+                //printf("-matriz[m][k] / matriz[k][k] = %.5lf / %.5lf ||| %d - %d\n",matriz[m][k],matriz[k][k],k,m);
+                double F = -matriz[m][k] / matriz[k][k]; 
+
+                matriz[m][k] = 0; //evita uma iteração
+                
+                L[m][k] = -F;//coloca os multiplicadores na matriz triangular inferior, -F para pegar o valor original de (matriz[m][k] / matriz[k][k])
+                //vetorB[m] = vetorB[m] + F * vetorB[k];
+
+                for(int l = k + 1; l < ordem; l++){
+                    //Atualização da linha, matriz[k][l] é o elemento da linha do pivô
+                    matriz[m][l] = matriz[m][l] + F * matriz[k][l];
+                }
+
+                //imprimirMatriz(matriz,ordem);
+                //printf("\n");
+            }
+        }
+     
+    }
+
+    U = matriz;
+
+    
+ double solut[ordem],solut2[ordem];
+        int ind;
+    
+
+  
+    printf("\n-----------------------------------------------------------------------------\n");
+    
+    for(int i = 0;i < ordem;i++)
+        printf("%d ",variaveis2[i]);
+    printf("\n");
+    double* vetorSolucao_matrizL;
+    double* vetorSolucao_matrizU;
+
+    for(int k = 0;k < ordem; k++){
+
+        vetorSolucao_matrizL = alocarVetor(ordem);
+        vetorSolucao_matrizU = alocarVetor(ordem);
+
+            for (int j = 0; j < ordem; ++j){
+                  vetorB[j] = I[j][k];
+            }
+
+            vetorSolucao_matrizL = triangularInferior(L,vetorB,vetorSolucao_matrizL,ordem);
+
+            vetorSolucao_matrizU = triangularSuperior(U,vetorSolucao_matrizL,vetorSolucao_matrizU,ordem);
+            for(int i = 0; i < ordem;i++){
+                for(int j = 0;j < ordem; j++){
+                   
+                    if(i == variaveis[j])
+                        ind = j;
+                }
+               
+                solut[i] = vetorSolucao_matrizU[ind];
+            }
+           /* for(int i = 0; i < ordem;i++){
+                for(int j = 0;j < ordem; j++){
+                   
+                    if(i == variaveis2[j])
+                        ind = j;
+                }
+               
+                solut2[i] = solut[ind];
+            }*/
+
+        for (int i = 0; i < ordem; i++){
+            I[i][k] = solut[i];
+        }
+
+        free(vetorSolucao_matrizL);
+        free(vetorSolucao_matrizU);
+    }
+
+     
+    imprimirMatriz(I,ordem);
+    
+    
+
+
+    liberarMatriz(L,ordem);
+    liberarMatriz(I,ordem);
+
+
 }
 
