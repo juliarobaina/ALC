@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX 20
+#define MAX 21
 
 int main(){
 
@@ -32,7 +32,7 @@ int main(){
 		}	
 	}
 
-	int aux = cont = 20;//a PRIMEIRA VERSAO CONT É IGUAL A 21
+	int aux = cont = 21;//a PRIMEIRA VERSAO CONT É IGUAL A 21
 
 	//Preenche a matriz diagonal superior
 	for(int i = 0; i < MAX; i++){
