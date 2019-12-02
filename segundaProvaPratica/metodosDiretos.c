@@ -1,11 +1,11 @@
 #include "metodosDiretos.h"
-
+#include <string.h>
 void imprimirMatriz(double** matriz, int ordem){
 
 	for(int i = 0; i < ordem; i++){
 		for(int j = 0; j < ordem; j++){
 
-			printf("%5.1lf",matriz[i][j]);
+			printf("%10.3lf",matriz[i][j]);
 		}
 
 		printf("\n");
@@ -409,107 +409,161 @@ void decomposicaoLU(double** matriz, double* vetorB ,int ordem){
   
 }
 
+int is_simetrica(double** A, int ordem){
+
+    for (int i = 0; i < ordem; ++i){
+        for (int j = 0; j < ordem; ++j){
+            if(i != j){
+                if(A[i][j] != A[j][i]){
+                    return 0;
+                }
+            }
+        }
+    }
+
+    return 1;
+}
+
 void cholesky(double** A, double* vetorB, int ordem){//A matriz deve ser positiva definida
 
     double** G = alocarMatriz(ordem);
     double** G_t = alocarMatriz(ordem);
     double soma = 0,soma2 = 0;
+    char* v;
+
+    if(A[0][0] == 0){
+        printf("Nao e possivel calcular cholesky\n");
+   }else if(is_simetrica(A, ordem) == 0){
+        printf("Nao e possivel calcular cholesky, matriz nao e simetrica\n");
+    }else{
 
 
-    G[0][0] = sqrt(A[0][0]);//G11 = raiz(a11)
+        G[0][0] = sqrt(A[0][0]);//G11 = raiz(a11)
 
-    for(int i = 1; i < ordem;i++){
-        //Fica uma matriz triangular inferior
-        soma = 0;
-        G[i][0] = A[i][0] / G[0][0];//calcular valores da 1ª coluna
-       
-        for(int j = 0; j <= i - 1;j++){
-            //calcular valores da diagonal principal
-            if(i >= 2 && j != 0){//calcular os valores das demais linhas e colunas
-                for(int p = 2; p < ordem; p++){
-                    for(int r = 1;r < p;r++){
-                         
-                        soma2 = A[p][r];
-                       
-                        for(int k = 0; k < r; k++){
-                            soma2 = soma2 - G[p][k] * G[r][k];
-                        }
-
-                        G[p][r] = soma2 / G[r][r];
-                    }                   
-                } 
+        for(int i = 1; i < ordem;i++){
+            //Fica uma matriz triangular inferior
+            soma = 0;
+            G[i][0] = A[i][0] / G[0][0];//calcular valores da 1ª coluna
+           
+            for(int j = 0; j <= i - 1;j++){
+                //calcular valores da diagonal principal
+                if(i >= 2 && j != 0){//calcular os valores das demais linhas e colunas
+                    for(int p = 2; p < ordem; p++){
+                        for(int r = 1;r < p;r++){
+                             
+                            soma2 = A[p][r];
+                           
+                            for(int k = 0; k < r; k++){
+                                soma2 = soma2 - G[p][k] * G[r][k];
+                            }
+                            if(G[r][r] == 0){
+                                printf("Nao e possivel calcular Cholesky\n");                            
+                                exit(1);
+                            }
+                            G[p][r] = soma2 / G[r][r];
+                        }                   
+                    } 
+                }
+              
+                soma = soma + pow(G[i][j],2);         
             }
-          
-            soma = soma + pow(G[i][j],2);         
+
+            G[i][i] = sqrt(A[i][i] - soma);//calcular valores da diagonal principal      
         }
 
-        G[i][i] = sqrt(A[i][i] - soma);//calcular valores da diagonal principal      
-    }
-
-    //obtém a matriz G transposta
-    for (int i = 0; i < ordem; ++i){
-        for (int j = 0; j < ordem; ++j){
-            G_t[i][j] = G[j][i];
-        }
-    }
-
-    printf("\nA = G * Gt\n");
-    printf("Matriz G:\n");
-    imprimirMatriz(G,ordem);
-    printf("\nMatriz Gt:\n");
-    imprimirMatriz(G_t,ordem);
- 
-    
-
-    /*
-        ALGORITMO DA UFRJ
-    
-    for(int i = 0; i < ordem;i++){
-        G[i][i] = sqrt(A[i][i]);
-        for(int k = i+1;k < ordem;k++){
-            G[i][k] = A[i][k] / G[i][i];
-        }
-        for(int k = i+1;k < ordem;k++){
-            for(int j = k; j < ordem;j++){
-                A[k][j] = A[k][j] - G[i][k] * G[i][j];
+        //obtém a matriz G transposta
+        for (int i = 0; i < ordem; ++i){
+            for (int j = 0; j < ordem; ++j){
+                G_t[i][j] = G[j][i];
             }
         }
-    }*/
-    
 
-    
-    /*                                     
-        A * x = b               A = G * Gt 
-                                           ^                      ^
-        (G * Gt)* x = b         Gt * x = y |    direção de cálculo|
-                                G * y = b  |
-    */
-    double* vetorSolucao_matrizL = alocarVetor(ordem);
-    vetorSolucao_matrizL = triangularInferior(G,vetorB,vetorSolucao_matrizL,ordem);
+       /* printf("\nA = G * Gt\n");
+        printf("Matriz G:\n");
+        imprimirMatriz(G,ordem);
+        printf("\nMatriz Gt:\n");
+        imprimirMatriz(G_t,ordem);*/
+     
+        
 
-    printf("\nVetor solucao da matriz G\n");
-    for (int i = 0; i < ordem; i++){
-        printf("x_G[%d] = %.5lf\n",i,vetorSolucao_matrizL[i]);
+        /*
+            ALGORITMO DA UFRJ
+        
+        for(int i = 0; i < ordem;i++){
+            G[i][i] = sqrt(A[i][i]);
+            for(int k = i+1;k < ordem;k++){
+                G[i][k] = A[i][k] / G[i][i];
+            }
+            for(int k = i+1;k < ordem;k++){
+                for(int j = k; j < ordem;j++){
+                    A[k][j] = A[k][j] - G[i][k] * G[i][j];
+                }
+            }
+        }*/
+        
+
+        
+        /*                                     
+            A * x = b               A = G * Gt 
+                                               ^                      ^
+            (G * Gt)* x = b         Gt * x = y |    direção de cálculo|
+                                    G * y = b  |
+        */
+        double* vetorSolucao_matrizL = alocarVetor(ordem);
+        vetorSolucao_matrizL = triangularInferior(G,vetorB,vetorSolucao_matrizL,ordem);
+
+        for (int i = 0; i < ordem; i++){
+            v = malloc(9 * sizeof(char));
+
+            *v = vetorSolucao_matrizL[i];
+            if(strcmp(v,"INFINITY") || strcmp(v,"NAN") || (!(vetorSolucao_matrizL[i] > 0) && !(vetorSolucao_matrizL[i] < 0))){
+                printf("Nao e possivel calcular Cholesky\n");
+                exit(1);
+            }
+            free(v);
+        }
+        printf("\nVetor solucao da matriz G\n");
+        for (int i = 0; i < ordem; i++){
+            printf("x_G[%d] = %.5lf\n",i,vetorSolucao_matrizL[i]);
+        }
+
+
+        double* vetorSolucao_matrizU = alocarVetor(ordem);
+        vetorSolucao_matrizU = triangularSuperior(G_t,vetorSolucao_matrizL,vetorSolucao_matrizU,ordem);
+
+        for (int i = 0; i < ordem; i++){
+            v = malloc(9 * sizeof(char));
+
+            *v = vetorSolucao_matrizL[i];
+            if(strcmp(v,"INFINITY") || strcmp(v,"NAN") || (!(vetorSolucao_matrizL[i] > 0) && !(vetorSolucao_matrizL[i] < 0))){
+                printf("Nao e possivel calcular Cholesky\n");
+                exit(1);
+            }
+            free(v);
+        }
+
+        printf("\nVetor solucao da matriz Gt\n");
+        for (int i = 0; i < ordem; i++){
+            printf("x_Gt[%d] = %.5lf\n",i,vetorSolucao_matrizU[i]);
+        }
+
+        printf("\nA = G * Gt\n");
+        printf("Matriz G:\n");
+        imprimirMatriz(G,ordem);
+        printf("\nMatriz Gt:\n");
+        imprimirMatriz(G_t,ordem);
+
+        free(vetorSolucao_matrizL);
+        free(vetorSolucao_matrizU);
     }
 
-
-    double* vetorSolucao_matrizU = alocarVetor(ordem);
-    vetorSolucao_matrizU = triangularSuperior(G_t,vetorSolucao_matrizL,vetorSolucao_matrizU,ordem);
-
-    printf("\nVetor solucao da matriz Gt\n");
-    for (int i = 0; i < ordem; i++){
-        printf("x_Gt[%d] = %.5lf\n",i,vetorSolucao_matrizU[i]);
-    }
-
-
-
+   
 
 
 
     liberarMatriz(G,ordem);
     liberarMatriz(G_t,ordem);
-    free(vetorSolucao_matrizL);
-    free(vetorSolucao_matrizU);
+    //free(v);
 
 
 }
@@ -794,7 +848,7 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
     for(int i = 0; i < ordem;i++){
        
         variaveis[i] = i; //x[0],x[1],x[2],...,x[n-1].          
-       variaveis2[i] = i;
+        variaveis2[i] = i;
         
     }
 
@@ -826,14 +880,14 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
                 matriz[j][k] = matriz[j][maxIndexC];
                 matriz[j][maxIndexC] = temp;
 
-                /*double temp2 = I[j][k];
+                double temp2 = I[j][k];
                 I[j][k] = I[j][maxIndexC];
-                I[j][maxIndexC] = temp2;*/
-
+                I[j][maxIndexC] = temp2;
                 int tempV = variaveis[k];
                 variaveis[k] = variaveis[maxIndexC];
                 variaveis[maxIndexC] = tempV;
             }
+             
         }
 
 
@@ -846,12 +900,9 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
             }
         }
 
-        printf("PASSO A PASSO 3\n");
-            imprimirMatriz(matriz,ordem);
-            imprimirVetor(vetorB,ordem);
 
         if(maxIndexL != k) {//Troca as linhas
-            printf("entei\n");
+            printf("entei, %d %d\n",maxIndexL,k);
             /*troca a equação k pela equação com o
               maior k-ésimo coeficiente em módulo. Troca o pivô.
              */
@@ -860,20 +911,15 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
                 matriz[k][j] = matriz[maxIndexL][j];
                 matriz[maxIndexL][j] = temp;
 
-                /*double temp2 = I[k][j];
+                double temp2 = I[k][j];
                 I[k][j] = I[maxIndexL][j];
-                I[maxIndexL][j] = temp2;*/
-
-                int tempV = variaveis2[k];
-                variaveis2[k] = variaveis2[maxIndexL];
-                variaveis2[maxIndexL] = tempV;
-
+                I[maxIndexL][j] = temp2;
             }
+
+            int tempV = variaveis2[k];
+            variaveis2[k] = variaveis2[maxIndexL];
+            variaveis2[maxIndexL] = tempV;
         }
-        printf("PASSO A PASSO 3\n");
-            imprimirMatriz(matriz,ordem);
-            imprimirVetor(vetorB,ordem);
-       
       
         if(matriz[k][k] == 0){
             printf("A matriz dos coeficientes é singular\n");
@@ -882,21 +928,16 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
             //realiza o escalonamento
             for(int m = k + 1; m < ordem; m++){
                 /*Esse loop defini o multiplicador da linha*/
-                //printf("-matriz[m][k] / matriz[k][k] = %.5lf / %.5lf ||| %d - %d\n",matriz[m][k],matriz[k][k],k,m);
                 double F = -matriz[m][k] / matriz[k][k]; 
 
                 matriz[m][k] = 0; //evita uma iteração
                 
-                L[m][k] = -F;//coloca os multiplicadores na matriz triangular inferior, -F para pegar o valor original de (matriz[m][k] / matriz[k][k])
-                //vetorB[m] = vetorB[m] + F * vetorB[k];
+                L[m][k] = -F;
 
                 for(int l = k + 1; l < ordem; l++){
                     //Atualização da linha, matriz[k][l] é o elemento da linha do pivô
                     matriz[m][l] = matriz[m][l] + F * matriz[k][l];
                 }
-
-                //imprimirMatriz(matriz,ordem);
-                //printf("\n");
             }
         }
      
@@ -912,9 +953,7 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
   
     printf("\n-----------------------------------------------------------------------------\n");
     
-    for(int i = 0;i < ordem;i++)
-        printf("%d ",variaveis2[i]);
-    printf("\n");
+    
     double* vetorSolucao_matrizL;
     double* vetorSolucao_matrizU;
 
@@ -930,6 +969,7 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
             vetorSolucao_matrizL = triangularInferior(L,vetorB,vetorSolucao_matrizL,ordem);
 
             vetorSolucao_matrizU = triangularSuperior(U,vetorSolucao_matrizL,vetorSolucao_matrizU,ordem);
+            
             for(int i = 0; i < ordem;i++){
                 for(int j = 0;j < ordem; j++){
                    
@@ -939,7 +979,8 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
                
                 solut[i] = vetorSolucao_matrizU[ind];
             }
-           /* for(int i = 0; i < ordem;i++){
+            
+            for(int i = 0; i < ordem;i++){
                 for(int j = 0;j < ordem; j++){
                    
                     if(i == variaveis2[j])
@@ -947,11 +988,11 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
                 }
                
                 solut2[i] = solut[ind];
-            }*/
+            }
 
-        for (int i = 0; i < ordem; i++){
-            I[i][k] = solut[i];
-        }
+            for (int i = 0; i < ordem; i++){
+                I[i][k] = solut2[i];
+            }
 
         free(vetorSolucao_matrizL);
         free(vetorSolucao_matrizU);
@@ -968,4 +1009,3 @@ void inversa_LU(double** matriz, double* vetorB ,int ordem){
 
 
 }
-
